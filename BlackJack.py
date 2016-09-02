@@ -37,8 +37,8 @@ def displayMenu():
     print "Option 1 - Play BlackJack"
     print "Option 2 - View Tokens"
     print "Option 3 - Save"
-    print "Option 4 - Load"
-    print "Option 0 - Ecit"
+    print "Option 4 - Load"																																																																										
+    print "Option 0 - Exit"
 
 def game():
     deckPos = 0 #removes the need to remove cards from the deck array
@@ -69,7 +69,7 @@ def game():
 def main():
     userOption = -1
     while userOption != 0:
-        userOption = intput("enter an option from the menu")
+        userOption = input("enter an option from the menu")
         displayMenu()
         if userOption == 1:
             game();
