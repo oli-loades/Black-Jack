@@ -19,13 +19,11 @@ class Deck:
                 self.deck.append(card)
 
     def shuffle(self):
-        """
-            uses the random shuffle function to shuffle the created deck
-        """
+        """ uses the random shuffle function to shuffle the created deck """
         random.shuffle(self.deck)
 
     def draw(self):
-        """selects the next card in the deck"""
+        """ selects the next card in the deck """
         temp = []
         temp = self.deck[self.deckPos]
         self.deckPos+=1 #tracks the next card
@@ -56,8 +54,10 @@ class Player:
         """
             removes the tokens from the player
         """
-        print "player " + str(self.num) + " loses"
-        self.printScore()
+        self.num = num  #used to show which player is selected
+        self.hasBlackJack = False
+
+
 
     def printScore(self):
         print "Player " + str(self.num) + " cuurent score: " + str(self.hand.getScore())
@@ -65,6 +65,7 @@ class Player:
     def makeBet(self):
         #checks if bet is ok
 """
+
 
 class Hand:
     def __init__(self,deck):
@@ -107,20 +108,29 @@ class Hand:
         for x in range(len(self.cards)):
             if x == (len(self.cards)-1):
                 s = s + self.values[self.cards[x][1]] + " of " +self.cards[x][0]
-            else:
-                s = s + self.values[self.cards[x][1]] + " of " +self.cards[x][0] + " , "
-        return s
+
+    def draw(self):
+        """ gives a player a cards from the deck """
+        self.cards.append(self.deck.draw()) #adds a card to the hand from the deck
+
+    def newHand(self):
+        """ gives player 2 new cards """
+        self.cards = []
+        self.highAce = False
+        self.bust = False
+        for i in range(0,2): #takes 2 cards
+            self.draw()
 
     def hit(self):
         """
             give another card and checks if they have gone over 21
         """
         self.draw()
+
         print "Card: " + self.values[self.cards[-1][1]] + " of " +self.cards[-1][0]
         self.calcScore()
         if self.score > 21:
             self.busted()
-
 
 
     def busted(self):
@@ -131,31 +141,34 @@ class Hand:
         print "you have gone bust, you lose"
 
 
-
     def ace(self):
-        #allows player to choose whether an ace is scored as 1 or 11
+        """sets ace to be scored as 11 """
         self.highAce = True
         self.calcScore()
 
     def getScore(self):
+
+        """ returns score """
         self.calcScore()
         return self.score
 
     def hasAce(self):
-        if len(self.cards) == 2:
-            if self.cards[0][1] == 1 or self.cards[1][1] == 1:
+        """ checks whether the player has an ace or not """
+        if len(self.cards) == 2: #if checking at the start of the game
+            if self.cards[0][1] == 1 or self.cards[1][1] == 1: #if either card is an ace
                 return True
             else:
                 return False
-        else:
-            if self.cards[-1][1] == 1:
+        else: #if player has hit
+            if self.cards[-1][1] == 1: #if the new card is an ace
                 return True
             else:
                 return False
 
     def blackJack(self):
-        if self.hasAce() == True:
-            self.ace()
+        """checks if the player has black jack """
+        if self.hasAce() == True: #if player has an ace
+            self.ace() #high ace
             if self.score == 21:
                 return True
             else:
@@ -163,13 +176,6 @@ class Hand:
         else:
             return False
 
-    """
-    def split(self):
-        #creates a new hand
-
-    def blackJack(self)
-        #automatic win
-    """
 
 class Dealer(Hand):
     def __init__(self, deck):
@@ -178,38 +184,31 @@ class Dealer(Hand):
 
 
     def showCard(self):
-        """
-            sows the first card
-        """
+
+        """ shows the first card """
         print "Dealers card: " +  self.values[self.cards[0][1]] + " of " + self.cards[0][0]
 
     def showHand(self):
-        """
-            prints full hand
-        """
+        """ prints full hand """
         print "Dealers hand: " + self.getHand()
 
     def play(self):
-        """
-            dealers logic
-        """
+        """ dealers logic """
         stick = False
-        while stick == False and self.bust == False:
-            if self.hasAce() == True:
-                if (self.score + 10) < 21:
-                    self.ace()
-            if self.score < 17:
+        while stick == False and self.bust == False: #loop until dealer sticks or busts
+            if self.hasAce() == True:#if dealer has ace
+                if (self.score + 10) < 21: #if choosing high ace doesn't bust hand
+                    self.ace() #creates high ace
+            if self.score < 17: #dealer can only stick if thier score is over 17
                 print "dealer chooses to hit"
-                self.hit()
+                self.hit() #gets another card
             else:
                 stick = True
                 print "Dealer has choosen to stick"
-        self.showHand()
+        self.showHand() #shows dealers hand
 
     def busted(self):
-        """
-            if the dealer busts
-        """
+        """ if the dealer busts """
         self.bust = True
         print "Dealer has gone bust"
 
@@ -217,24 +216,25 @@ class Dealer(Hand):
         if self.blackJack() == True:
             self.blackJackWin = True
 
-
 def isAce(players,i):
+    """lets the player choose if ace is sored as 1 or 11 """
     if players[i].hand.hasAce() == True:
-        a = validate("player " + str(i+1) + " got an ace, do you want it to be scored as 1 or 11, 1 = yes, 0 = no ")
+        a = validate("player " + str(i+1) + " got an ace, do you want it to be scored as 11, 1 = yes, 0 = no ") #checks user input and allows it if it is a number
         valid = False
-        while valid == False:
-            if a == 1:
+        while valid == False: #loop until input is 1 or 0
+            if a == 1: #if player chooses ace to be scored as 11
                 valid = True
-                players[i].hand.ace()
+                players[i].hand.ace() #set ace to 11
             elif a == 0:
                 valid = True
-            else:
+            else: #if 0 or 1 is not entered
                 print "Error - enter 1 or 0"
 
 def isBlackJack(players,i):
+    """ cheks if s player has black jack """
     if players[i].hand.blackJack() == True:
         players[i].printHand()
-        players[i].gotBlackJack = True
+        players[i].hasBlackJack = True
         return True
     return False
 
@@ -259,23 +259,21 @@ def menu():
     print "Option 0 - Exit"
 
 def win(players,house):
-    """
-        decides which players win
-    """
-    for i in range(0,len(players)):
-        if players[i].gotBlackJack == False:
-            if house.bust == False:
-                if players[i].hand.bust == False:
-                    if players[i].hand.score > house.score:
+    """ decides which players win """
+    for i in range(0,len(players)):#loop through each player
+        if players[i].hasBlackJack == False: #if player does not have black jack
+            if house.bust == False: #if dealer is not bust
+                if players[i].hand.bust == False: #if player is not bust
+                    if players[i].hand.score > house.score: #if players score is higher than dealers
                         players[i].wins()
                     else:
                         players[i].loses()
-                else:
+                else: #if player went bust
                     players[i].loses()
-            else:
+            else:#if dealer went bust
                 if players[i].hand.bust == False:
                     players[i].wins()
-        else:
+        else: #if player got black jack
             if house.gotBlackJack() == True:
                 players[i].loses()
             else:
@@ -306,58 +304,48 @@ def hitOrStick(players,i):
             else:
                 print "Error - enter 1 or 0"
 
-def game():
 
-    """
-        allows the player to play black jack
-    """
-    valid = False
-    deck = Deck()
-    house = Dealer(deck)
-    numPlayers = validate("enter the number of players ")
-    players = []
-    house.showCard()
-    house.showHand()
+def play(players, house):
+    numPlayers = len(players) #sets number of players
+    house.showCard() #shows one of the dealers cards
+    for i in range(0,numPlayers): #loop through each player
+        if isBlackJack(players,i) == False: #if the player has not go black jack
+            players[i].printHand() #show hand
+            isAce(players, i) #check if its an ace
+            players[i].printScore() #shows score
     for i in range(0,numPlayers):
-        players.append(Player(500,deck,i+1))
-    for i in range(0,numPlayers):
-        if isBlackJack(players,i) == False:
-            players[i].printHand()
-            isAce(players, i)
-            players[i].printScore()
-    for i in range(0,numPlayers):
-        if players[i].gotBlackJack == False:
-            hitOrStick(players,i)
-    house.play()
-    win(players,house)
+        if players[i].hasBlackJack == False:
+            hitOrStick(players,i) #lets player choose to hit or stick
+    house.play() #dealer AI plays
+    win(players,house) #Decides who wins
 
 def main():
-    """
-        used to show the menu and allows the user to select different options
-    """
-    menu()
-    #game()
-    #if the user makes a mistake it does not crash
+    """ allows the player to play black jack """
     valid = False
-    m = validate("Enter an option from the menu ")
-    while valid == False:
-        if m >= 0 and m <= 4:
+    deck = Deck() #Creates new deck
+    house = Dealer(deck) #cretaes new dealer hand
+    numPlayers = validate("enter the number of players ") #checks if user has entered a number
+    players = [] #list used to stroe players
+    end = False #used to stroe whether the player wants to stop playing
+    for i in range(0,numPlayers): #loop through eahc player
+        players.append(Player(500,deck,i+1)) #crete new player
+    play(players,house) #play game
+    while valid == False or end == False: #loop until player chooses to end
+        valid = False
+        p = validate("would you like to play again? 1 = yes, 0 = no ")
+        if p == 1:#if player wants to play again
             valid = True
-            if m == 1:
-                game()
-            elif m == 2:
-                print "not yet implemented"
-                #print player.tokens
-            elif m == 3:
-                print "not yet implemented"
-                #save()
-            elif m == 4:
-                print "not yet implemented"
-                #load()
-            else:
-                print "exit"
-        else:
-            m = input("Error - Enter an option from the menu ")
+            house.newHand() #dealer new hand
+            for i in range(0,numPlayers):
+                players[i].hand.newHand() #players new hand
+            play(players,house)
+        elif p == 0: #ends game
+            valid = True
+            end = True
+            print "game ended"
+        else: #if player does not enter 1 or 0
+            valid = False
+            print "error enter an option from the menu"
 
 
 if __name__ == "__main__":
