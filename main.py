@@ -60,7 +60,6 @@ class Player:
 
 
     def printScore(self):
-        print "Player " + str(self.num) + " cuurent score: " + str(self.hand.getScore())
 """
     def makeBet(self):
         #checks if bet is ok
@@ -71,12 +70,15 @@ class Hand:
     def __init__(self,deck):
         self.deck = deck
         self.cards = []
+
         self.highAce = False
+
         for i in range(0,2):
             self.draw()
         self.score = 0
         self.calcScore()
         self.bust = False
+
         self.values = ["","Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 
 
@@ -97,8 +99,33 @@ class Hand:
                 self.score = self.score + 10
             else:
                 self.score = self.score + self.cards[x][1]
+
+    def printHand(self):
+        s = ""
+        values = ["","Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
+        for x in range(len(self.cards)):
+            if x == (len(self.cards)-1):
+                s = s + values[self.cards[x][1]] + " of " +self.cards[x][0]
+            else:
+                s = s + values[self.cards[x][1]] + " of " +self.cards[x][0] + " and "
+        return s
+
+    def hit(self):
+        self.draw()
+        self.calcScore()
+        if self.score > 21:
+            self.busted()
+
+
+
+    def busted(self):
+        self.bust = True
+        print "you have gone bust, you lose"
+
+
+    """
         if self.highAce == True:
-            self.score = self.score + 10
+            self.score = self.score + 10"""
 
     def getHand(self):
         """
@@ -139,7 +166,6 @@ class Hand:
         """
         self.bust = True
         print "you have gone bust, you lose"
-
 
     def ace(self):
         """sets ace to be scored as 11 """
@@ -240,8 +266,10 @@ def isBlackJack(players,i):
 
 def validate(msg):
     """
+
         catches errors if the user doesn't enter a number
     """
+
     num = False
     while num == False:
         try:
@@ -257,6 +285,7 @@ def menu():
     print "Option 3 - Save"
     print "Option 4 - Load"
     print "Option 0 - Exit"
+
 
 def win(players,house):
     """ decides which players win """
@@ -285,7 +314,32 @@ def win(players,house):
 def hitOrStick(players,i):
     """
         lets the players choose to hit or stick
-    """
+    valid = False
+    deck = Deck()
+    house = Player(1000,deck,0)
+    numPlayers = validate("enter the number of players ")
+    players = []
+    house.printHand()
+    for i in range(0,numPlayers):
+        players.append(Player(500,deck,i+1))
+        #print players[i].hand.cards #prints the cards ech player has been dealt
+        players[i].printHand()
+    for i in range(0,numPlayers):
+        valid = False
+        while valid == False:
+            hit = validate("Player " + str(i+1) +" do you want to hit? 1 = yes, 0 = no ")
+            if hit == 1:
+                valid = True
+                players[i].hand.hit()
+                players[i].printHand()
+            elif hit == 0:
+                valid = True
+                print "you have choosen to stick"
+            else:
+                print "Error - enter 1 or 0"
+
+
+    #hit or stick
     stick = False
     while stick == False and players[i].hand.bust == False:
         valid = False
@@ -322,6 +376,7 @@ def play(players, house):
 def main():
     """ allows the player to play black jack """
     valid = False
+
     deck = Deck() #Creates new deck
     house = Dealer(deck) #cretaes new dealer hand
     numPlayers = validate("enter the number of players ") #checks if user has entered a number
